@@ -1,5 +1,7 @@
 package frc.sorutil;
 
+import frc.robot.Constants;
+
 public class SorMath {
     public static final double EPSILON = 1e-6;
     public static final float F_EPSILON = 1e-5f;
@@ -76,4 +78,16 @@ public class SorMath {
         return (proportion * delta) + low;
     }
 
+
+    public static double ticksToDegrees(double ticks, double ticksPerRotation) {
+		return (ticks / ticksPerRotation ) * 360;
+	}
+
+	public static double degreesToTicks(double angle, double ticksPerRotation) {
+		return (angle / 360d) * ticksPerRotation;
+	}
+
+	public static double sensorUnitsPer100msToMetersPerSecond(double sensorUnitsPer100ms) {
+		return (sensorUnitsPer100ms * (Constants.RobotDimensions.WHEEL_CIRCUMFERENCE / 4096)) * 10;
+	}
 }

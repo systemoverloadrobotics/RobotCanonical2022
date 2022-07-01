@@ -59,6 +59,18 @@ public class SuMotor <T extends SuController> {
     controller.stop();
   }
 
+  public double outputVelocity() {
+    return controller.outputVelocity();
+  }
+
+  public double outputPosition() {
+    return controller.outputPosition();
+  }
+
+  public void setSensorPosition(double position) {
+    controller.setSensorPosition(position);
+  }
+
   /**
    * Configure this motor to match the output of the other controller.
    * 

@@ -46,4 +46,8 @@ public class Interpolator extends TreeMap<Double, Double> {
 
     return SorMath.linearInterpolate(input, floor.getKey(), ceiling.getKey(), floor.getValue(), ceiling.getValue());
   }
+
+  public Double put(int a0, int a1) {
+    return this.put((double) a0, (double) a1);
+  }
 }
