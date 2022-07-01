@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import frc.sorutil.ConstantAxis;
+import frc.sorutil.ConstantButton;
 import frc.sorutil.motor.PidProfile;
 
 /**
@@ -54,6 +56,8 @@ public final class Constants {
             public static final double SHOOTER_ERROR_TOLERANCE = 0.05; // 5%
 
             public static final double FEEDER_SPEED = 500; // RPM
+
+            public static final double DEFAULT_SPOOL_SPEED = 3600; // RPM
         }
 
         public static final class Swerve {
@@ -79,6 +83,7 @@ public final class Constants {
         public static final int SHOOTER = 1;
         public static final int FEEDER = 6;
         public static final int INTAKE = 7;
+        public static final int STORAGE = 5;
 
         // Swerve
         public static final int SWERVE_FRONT_LEFT_POWER = 4;
@@ -97,5 +102,22 @@ public final class Constants {
     public static final class Solenoid {
         public static final int INTAKE_EXTEND = 1;
         public static final int INTAKE_RETRACT = 2;
+    }
+
+    public static final class Input {
+        public static final ConstantAxis SWERVE_X = new ConstantAxis(0, 1);
+        public static final ConstantAxis SWERVE_Y = new ConstantAxis(0, 2);
+        public static final ConstantAxis SWERVE_ROTATION = new ConstantAxis(1, 1);
+
+        public static final ConstantButton SPOOL = new ConstantButton(2, 5);
+        public static final ConstantButton SHOOT = new ConstantButton(2, 4);
+
+        public static final ConstantButton INTAKE = new ConstantButton(2, 6);
+    }
+
+    public static final class Sensors {
+        public static final int INTAKE_BREAKBEAM = 4;
+        public static final int STORAGE_BREAKBEAM = 5;
+        public static final int FEEDER_BREAKBEAM = 6;
     }
 }

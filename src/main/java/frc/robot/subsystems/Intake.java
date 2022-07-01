@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.sorutil.motor.MotorConfiguration;
 import frc.sorutil.motor.SuMotor;
@@ -11,7 +12,7 @@ import frc.sorutil.motor.SuTalonFx;
 import frc.sorutil.motor.SuMotor.ControlMode;
 import frc.sorutil.motor.SuMotor.IdleMode;
 
-public class Intake {
+public class Intake extends SubsystemBase {
   private final DoubleSolenoid intakeExtension;
   private final SuMotor<SuTalonFx> intake;
 

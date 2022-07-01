@@ -7,9 +7,15 @@ package frc.robot;
 import java.util.logging.Logger;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.commands.ManageStorage;
+import frc.robot.commands.SwerveDrive;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Storage;
+import frc.robot.subsystems.Swerve;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -21,9 +27,31 @@ public class RobotContainer {
   private final Logger logger;
 
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
+  private final Shooter shooter = new Shooter();
+  private final Swerve swerve = new Swerve();
+  private final Intake intake = new Intake();
+  private final Storage storage = new Storage();
 
-  private final ExampleCommand autoCommand = new ExampleCommand(exampleSubsystem);
+  private final Limelight limelight = new Limelight();
+
+  // Simple commands
+  private final Command shootCommand = new RunCommand(() -> {
+    Double distance = limelight.distanceToTarget();
+    if (distance == null) {
+      shooter.spoolDefault();
+    } else {
+      shooter.shoot(distance);
+    }
+  }, shooter);
+
+  private final Command spoolCommand = new RunCommand(() -> {
+    Double distance = limelight.distanceToTarget();
+    if (distance == null) {
+      shooter.spoolDefault();
+    } else {
+      shooter.spool(distance);
+    }
+  }, shooter);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -39,7 +67,13 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    swerve.setDefaultCommand(new SwerveDrive(swerve, Constants.Input.SWERVE_X.get(),
+        Constants.Input.SWERVE_Y.get(), Constants.Input.SWERVE_ROTATION.get()));
+    storage.setDefaultCommand(new ManageStorage(storage, intake, shooter));
 
+    Constants.Input.SHOOT.get().whenHeld(shootCommand);
+    Constants.Input.SPOOL.get().whenHeld(spoolCommand);
+    Constants.Input.INTAKE.get().whenHeld(new RunCommand(intake::intake, intake));
   }
 
   /**
@@ -49,6 +83,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return autoCommand;
+    return null;
   }
 }
