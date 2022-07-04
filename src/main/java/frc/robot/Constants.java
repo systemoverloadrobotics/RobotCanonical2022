@@ -41,6 +41,8 @@ public final class Constants {
     }
 
     public static final class Subsystem {
+        public static final double STORAGE_SPEED = 0.8; // Percent output
+
         public static final class Intake {
             public static final double SPEED = 4200; // RPM
             public static final PidProfile PID_PROFILE = new PidProfile(0.01, 0, 0);
@@ -56,6 +58,13 @@ public final class Constants {
             public static final double SHOOTER_ERROR_TOLERANCE = 0.05; // 5%
 
             public static final double FEEDER_SPEED = 500; // RPM
+
+            public static final double FEEDER_GEARBOX_RATIO = 10;
+
+            public static final double FEEDER_HOLD_POSITION = 50; // Degrees from zero
+            public static final double FEEDER_FIRE_POSITION = 500; // Degrees from zero
+            public static final double FEEDER_TRIGGER_POSITION = 140; // Degrees from zero, position the feeder is assumed to have fired the ball
+            public static final double FEEDER_FIND_SPEED = 100; // RPM, speed when feeder is looking for a ball
 
             public static final double DEFAULT_SPOOL_SPEED = 3600; // RPM
         }
