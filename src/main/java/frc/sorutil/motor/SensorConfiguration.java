@@ -155,10 +155,20 @@ public class SensorConfiguration {
     public final double outputOffset;
     public final ConnectedSensorType type;
 
+    private boolean inverted;
+
     public ConnectedSensorSource(int countsPerRev, double outputOffset, ConnectedSensorType type) {
       this.countsPerRev = countsPerRev;
       this.outputOffset = outputOffset;
       this.type = type;
+    }
+
+    public void setInverted(boolean inverted) {
+      this.inverted = inverted;
+    }
+
+    public boolean inverted() {
+      return inverted;
     }
   }
 

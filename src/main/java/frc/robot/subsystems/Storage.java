@@ -37,7 +37,7 @@ public class Storage extends SubsystemBase {
 
   /** Creates a new Storage. */
   public Storage() {
-    logger = Logger.getLogger(ExampleSubsystem.class.getName());
+    logger = Logger.getLogger(Storage.class.getName());
 
     intake = new DigitalInput(Constants.Sensors.INTAKE_BREAKBEAM);
     storage = new DigitalInput(Constants.Sensors.STORAGE_BREAKBEAM);
@@ -94,10 +94,10 @@ public class Storage extends SubsystemBase {
   }
 
   /**
-   * While manageStorage is called, the storage will attempt to automatically manage itself. While this is being called,
+   * While manage is called, the storage will attempt to automatically manage itself. While this is being called,
    * it can accept balls that are being picked up.
    */
-  public void manageStorage() {
+  public void manage() {
     manageRequested = true;
   }
 

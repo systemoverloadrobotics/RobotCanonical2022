@@ -1,14 +1,11 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -16,46 +13,33 @@ import frc.robot.modules.SwerveModule;
 
 
 public class Swerve extends SubsystemBase {
-
-  //Motor Initialization
-  //Front Left
-  private TalonFX frontLeftPower = new TalonFX(Constants.Motor.SWERVE_FRONT_LEFT_POWER);
-  private TalonSRX frontLeftSteer = new TalonSRX(Constants.Motor.SWERVE_FRONT_LEFT_STEER);
-  //Front Right
-  private TalonFX frontRightPower = new TalonFX(Constants.Motor.SWERVE_FRONT_RIGHT_POWER);
-  private TalonSRX frontRightSteer = new TalonSRX(Constants.Motor.SWERVE_FRONT_RIGHT_STEER);
-  //Back Left
-  private TalonFX backLeftPower = new TalonFX(Constants.Motor.SWERVE_BACK_LEFT_POWER);
-  private TalonSRX backLeftSteer = new TalonSRX(Constants.Motor.SWERVE_BACK_LEFT_STEER);
-  //Back Right
-  private TalonFX backRightPower = new TalonFX(Constants.Motor.SWERVE_BACK_RIGHT_POWER);
-  private TalonSRX backRightSteer = new TalonSRX(Constants.Motor.SWERVE_BACK_RIGHT_STEER);
-
   //Swerve Modules
-  private SwerveModule frontLeft;
-  private SwerveModule frontRight;
-  private SwerveModule backLeft;
-  private SwerveModule backRight;
+  private final SwerveModule frontLeft;
+  private final SwerveModule frontRight;
+  private final SwerveModule backLeft;
+  private final SwerveModule backRight;
 
   //Gyro
   private AHRS gyro = new AHRS(SerialPort.Port.kUSB);
   //Odometer
-  private SwerveDriveOdometry odometry = new SwerveDriveOdometry(Constants.RobotDimensions.SWERVE_DRIVE_KINEMATICS, new Rotation2d(0));
+  private SwerveDriveOdometry odometry =
+      new SwerveDriveOdometry(Constants.RobotDimensions.SWERVE_DRIVE_KINEMATICS, new Rotation2d(0));
+
+  private final Timer resetTimer = new Timer();
+  private boolean resetRun;
 
   public Swerve() {
     // Create four modules with correct controllers, add to modules
-    frontLeft = new SwerveModule(frontLeftPower, frontLeftSteer, 2389 - 3);
-    frontRight = new SwerveModule(frontRightPower, frontRightSteer,805 - 2);
-    backLeft = new SwerveModule(backLeftPower, backLeftSteer, 478 + 5);
-    backRight = new SwerveModule(backRightPower, backRightSteer,1421 + 30);
-    new Thread(() -> {
-      try { 
-        Thread.sleep(1000);
-        resetHeading();
-      } catch (Exception e) {
+    frontLeft = new SwerveModule("FrontLeft", Constants.Motor.SWERVE_FRONT_LEFT_POWER,
+        Constants.Motor.SWERVE_FRONT_LEFT_STEER, 2389 - 3);
+    frontRight = new SwerveModule("FrontRight", Constants.Motor.SWERVE_FRONT_RIGHT_POWER,
+        Constants.Motor.SWERVE_FRONT_RIGHT_STEER, 805 - 2);
+    backLeft = new SwerveModule("BackLeft", Constants.Motor.SWERVE_BACK_LEFT_POWER,
+        Constants.Motor.SWERVE_BACK_LEFT_STEER, 478 + 5);
+    backRight = new SwerveModule("BackRight", Constants.Motor.SWERVE_BACK_RIGHT_POWER,
+        Constants.Motor.SWERVE_BACK_RIGHT_STEER, 1421 + 30);
 
-      }
-    });
+    resetTimer.start();
   }
 
   public void stopModules(){
@@ -65,20 +49,8 @@ public class Swerve extends SubsystemBase {
     backRight.stop();
   }
 
-  public void resetHeading(){
-    gyro.reset();
-  }
-
   public Rotation2d getRotation2d(){
     return Rotation2d.fromDegrees(gyro.getYaw());
-  }
-
-  public Pose2d getPose(){
-    return odometry.getPoseMeters();
-  }
-
-  public void resetOdometry(Pose2d pose){
-    odometry.resetPosition(pose, getRotation2d());
   }
 
   public SwerveModuleState[] getModuleStates(){
@@ -91,7 +63,6 @@ public class Swerve extends SubsystemBase {
   }
 
   public void setModuleStates(SwerveModuleState[] desiredStates){
-    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Subsystem.Swerve.SWERVE_MAX_SPEED);
     frontLeft.setState(desiredStates[0]);
     frontRight.setState(desiredStates[1]);
     backLeft.setState(desiredStates[2]);
@@ -100,20 +71,14 @@ public class Swerve extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    frontLeft.periodic();
-    frontRight.periodic();
-    backLeft.periodic();
-    backRight.periodic();
-
     SmartDashboard.putData("Gyro", gyro);
+
+    // Run reset once after a second.
+    if (!resetRun && resetTimer.get() > 1) {
+      gyro.reset();
+      resetRun = true;
+    }
     
     odometry.update(getRotation2d(), getModuleStates());
   }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
-  }
-
 }

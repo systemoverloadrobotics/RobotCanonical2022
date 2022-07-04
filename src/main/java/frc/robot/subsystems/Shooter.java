@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.sorutil.SorMath;
 import frc.sorutil.interpolate.Interpolator;
 import frc.sorutil.motor.MotorConfiguration;
 import frc.sorutil.motor.SensorConfiguration;
@@ -14,14 +15,14 @@ import frc.sorutil.motor.SuMotor.ControlMode;
 import frc.sorutil.motor.SuMotor.IdleMode;
 
 public class Shooter extends SubsystemBase {
-  private final SuMotor<SuSparkMax> shooterMotor;
-
   private final Logger logger;
+
+  private final SuMotor<SuSparkMax> shooterMotor;
 
   private final Interpolator shotSpeed;
 
   public Shooter() {
-    logger = Logger.getLogger(ExampleSubsystem.class.getName());
+    logger = Logger.getLogger(Shooter.class.getName());
 
     // Shooter uses integrated sensor on the SparkMax with no gear reduction
     SensorConfiguration shooterSensor =
@@ -50,15 +51,12 @@ public class Shooter extends SubsystemBase {
     shooterMotor.stop();
   }
 
-  /** 
-   * Spool spools the shooter to the approximate speed for the specified distance in meters.
-   */
-  public void spool(double distance) {
-    shooterMotor.set(ControlMode.VELOCITY, shotSpeed.interpolate(distance));
-  }
-
   public void spoolDefault() {
     shooterMotor.set(ControlMode.VELOCITY, Constants.Subsystem.Shooter.DEFAULT_SPOOL_SPEED);
+  }
+
+  public void bunt() {
+    shooterMotor.set(ControlMode.VELOCITY, Constants.Subsystem.Shooter.BUNT_SPEED);
   }
 
   public double speed() {
@@ -66,11 +64,17 @@ public class Shooter extends SubsystemBase {
   }
 
   /**
-   * Shoot attempts to make a shot by forcing the feeding of balls. It accepts a distance estimation in meters.
+   * Spool spools the shooter to the approximate speed for the specified distance in meters.
    */
-  public void shoot(double distance) {
-    double speed = shotSpeed.interpolate(distance);
-    shooterMotor.set(ControlMode.VELOCITY, speed);
+  public void spool(double distance) {
+    shooterMotor.set(ControlMode.VELOCITY, shotSpeed.interpolate(distance));
+  }
 
+  /**
+   * atSpeed returns true if the shooter is at approximately the right speed for a given distance.
+   */
+  public boolean atSpeed(double distance) {
+    double speed = shotSpeed.interpolate(distance);
+    return SorMath.epsilonEquals(speed, shooterMotor.outputVelocity(), speed * Constants.Subsystem.Shooter.ACCEPTABLE_SPEED_DEVIATION);
   }
 }

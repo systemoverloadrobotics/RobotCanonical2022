@@ -7,7 +7,6 @@ package frc.robot;
 import java.util.logging.Logger;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ManageStorage;
 import frc.robot.commands.SwerveDrive;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
@@ -37,12 +36,17 @@ public class RobotContainer {
   // Simple commands
   private final Command shootCommand = new RunCommand(() -> {
     Double distance = limelight.distanceToTarget();
+
+    // distance will be null if no target is found.
     if (distance == null) {
       shooter.spoolDefault();
     } else {
-      shooter.shoot(distance);
+      shooter.spool(distance);
+      if (shooter.atSpeed(distance)) {
+        storage.feedShooter();
+      }
     }
-  }, shooter);
+  }, shooter, storage);
 
   private final Command spoolCommand = new RunCommand(() -> {
     Double distance = limelight.distanceToTarget();
@@ -52,6 +56,17 @@ public class RobotContainer {
       shooter.spool(distance);
     }
   }, shooter);
+
+  private final Command reverseCommand = new RunCommand(() -> {
+    storage.reverse();
+    shooter.spoolDefault();
+    intake.reverse();
+  }, shooter, intake, storage);
+
+  private final Command buntCommand = new RunCommand(() -> {
+    shooter.bunt();
+    storage.feedShooter();
+  }, shooter, storage);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -69,10 +84,15 @@ public class RobotContainer {
   private void configureButtonBindings() {
     swerve.setDefaultCommand(new SwerveDrive(swerve, Constants.Input.SWERVE_X.get(),
         Constants.Input.SWERVE_Y.get(), Constants.Input.SWERVE_ROTATION.get()));
-    storage.setDefaultCommand(new ManageStorage(storage, intake, shooter));
+    storage.setDefaultCommand(new RunCommand(storage::manage, storage));
+    intake.setDefaultCommand(new RunCommand(intake::retract, intake));
+
+    Constants.Input.REVERSE.get().whenHeld(reverseCommand);
 
     Constants.Input.SHOOT.get().whenHeld(shootCommand);
     Constants.Input.SPOOL.get().whenHeld(spoolCommand);
+    Constants.Input.BUNT.get().whenHeld(buntCommand);
+
     Constants.Input.INTAKE.get().whenHeld(new RunCommand(intake::intake, intake));
   }
 

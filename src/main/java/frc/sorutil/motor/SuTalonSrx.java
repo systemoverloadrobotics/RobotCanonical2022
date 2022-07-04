@@ -2,6 +2,7 @@ package frc.sorutil.motor;
 
 import java.util.logging.Logger;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.IFollower;
 import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -9,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import frc.sorutil.Errors;
+import frc.sorutil.motor.SensorConfiguration.ConnectedSensorSource;
 import frc.sorutil.motor.SensorConfiguration.IntegratedSensorSource;
 import frc.sorutil.motor.SuMotor.IdleMode;
 
@@ -84,6 +86,30 @@ public class SuTalonSrx implements SuController {
       if (sensorConfig.source() instanceof IntegratedSensorSource) {
         throw new MotorConfigurationError(
             "Talon SRX has no integrated sensor, but motor was configured to use integerated sensor source, use ConnectedSensorSource instead for sensors connected to the Talon's IO port.");
+      }
+
+      if (sensorConfig.source() instanceof ConnectedSensorSource) {
+        var connectedSensor = ((ConnectedSensorSource) sensorConfig.source());
+        FeedbackDevice device = null;
+        switch (connectedSensor.type) {
+          case MAG_ENCODER_ABSOLUTE:
+            device = FeedbackDevice.CTRE_MagEncoder_Absolute;
+            break;
+          case MAG_ENCODER_RELATIVE:
+            device = FeedbackDevice.CTRE_MagEncoder_Relative;
+            break;
+          case PWM_ENCODER:
+            device = FeedbackDevice.PulseWidthEncodedPosition;
+            break;
+          case QUAD_ENCODER:
+            device = FeedbackDevice.QuadEncoder;
+            break;
+        }
+        Errors.handleCtre(talon.configSelectedFeedbackSensor(device), logger,
+            "configuring selected sensor");
+        if (connectedSensor.inverted()) {
+          talon.setSensorPhase(true);
+        }
       }
     }
   }

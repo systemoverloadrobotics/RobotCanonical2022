@@ -2,6 +2,7 @@ package frc.sorutil.motor;
 
 import java.util.logging.Logger;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.IFollower;
 import com.ctre.phoenix.motorcontrol.IMotorController;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -88,6 +89,10 @@ public class SuTalonFx implements SuController {
       if (sensorConfig.source() instanceof ConnectedSensorSource) {
         throw new MotorConfigurationError(
             "Talon FX does not supported directly connected sensors, but was configured to use one.");
+      }
+
+      if (sensorConfig.source() instanceof IntegratedSensorSource) {
+        Errors.handleCtre(talon.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor), logger, "configuring sensor to integrated feedback sensor");
       }
     }
   }
