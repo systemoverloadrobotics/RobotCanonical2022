@@ -116,7 +116,7 @@ public class Storage2 extends SubsystemBase {
           storageMotor.set(ControlMode.PERCENT_OUTPUT, Constants.Subsystem.STORAGE_SPEED);
           if (storageStateTimer.get() > 3) {
             setStorageState(StorageState.STANDBY);
-          } else if (storage.get() && intake.get()) {
+          } else if (storage.get()) {
             setStorageState(StorageState.BALL_READY);
           }
           break;
