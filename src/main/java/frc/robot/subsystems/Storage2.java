@@ -168,7 +168,7 @@ public class Storage2 extends SubsystemBase {
           break;
 
         case FEEDING:
-          feederMotor.setSensorPosition(0);
+          feederMotor.set(ControlMode.VELOCITY, Constants.Subsystem.Shooter.FEEDER_FIND_SPEED);
 
           if (!feedRequested) {
             setFeederState(FeederState.HOLDING_BALL);
